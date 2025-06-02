@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  adminId    Int    @id @default(autoincrement())
+  adminName  String
+  adminEmail String @unique
+  adminPass  String
+}
+
+model Branch {
+  branchCode Int    @id
+  name       String
+
+  students Student[]
+  courses  Course[]
+}
+
+model Student {
+  id         Int    @id @default(autoincrement())
+  regNo      Int    @unique
+  name       String
+  password   String
+  email      String @unique
+  phoneNo    String
+  semester   Int
+  branchCode Int
+
+  branch Branch @relation(fields: [branchCode], references: [branchCode])
+}
+
+model Course {
+  id          Int    @id @default(autoincrement())
+  branchCode  Int
+  semester    Int
+  subjectName String
+  subjectCode Int
+
+  branch Branch @relation(fields: [branchCode], references: [branchCode])
+
+  @@unique([branchCode, semester, subjectCode]) // Prevent duplicate course entries
+}
